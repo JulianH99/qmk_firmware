@@ -17,24 +17,107 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdint.h>
 #include QMK_KEYBOARD_H
 //#include <stdio.h>
 //
+//options
+
+
+
 enum layers {
     _COLEMAK_DEFAULT,
     _SYMBOLS,
-    _FUNCTIONS,
+    _NAV,
     _MACROS_AND_COMBOS
-}
-
-const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    //COLEMAK
-  [_COLEMAK_DEFAULT] = LAYOUT_split_3x6_3(
-
-  ),
- //
 };
-// clang-format on
+
+// mods
+#define OSMCG OSM(MOD_LCTL|MOD_LGUI)
+#define OSMSG OSM(MOD_LSFT|MOD_LGUI)
+#define OSMCS OSM(MOD_LCTL|MOD_LSFT)
+
+// tab mods
+// - left hand
+#define ALTX LALT_T(KC_X)
+#define CTLC LCTL_T(KC_C)
+#define SFTD LSFT_T(KC_D)
+#define GUIESC LGUI_T(KC_ESC)
+// - right hand
+#define SFTH RSFT_T(KC_H)
+#define CTLCOMM RCTL_T(KC_COMM)
+#define ALTDOT RALT_T(KC_DOT)
+#define GUISLSH RGUI_T(KC_SLSH)
+#define ALTDEL RALT_T(KC_DEL)
+
+
+// layer toggle stuff
+#define LAYER1 LT(1, KC_SPC)
+#define LAYER2 LT(2, KC_BSPC)
+#define LAYER3 MO(3)
+
+// macros
+
+enum MY_MACROS {
+    WRITEVIM = SAFE_RANGE,
+    EXITVIM,
+    ARROWFUNC,
+    PHPPOINTER,
+    BACKARROW,
+    // change clients
+    TAG1,
+    TAG2,
+    TAG3,
+    TAG4
+};
+// see process_record_user function
+
+// combos
+const uint16_t PROGMEM esc_combo[] = {KC_T, KC_N, COMBO_END};
+
+
+combo_t key_combos[] = {
+    COMBO(esc_combo, KC_ESC)
+};
+
+
+// keymaps
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+        [_COLEMAK_DEFAULT] = LAYOUT_split_3x6_3(
+                OSMCG,   KC_Q,  KC_W,    KC_F,    KC_P,   KC_B,     KC_J,    KC_L,   KC_U,    KC_Y,   KC_SCLN,  OSMSG,
+                KC_BSPC, KC_A,  KC_R,    KC_S,    KC_T,   KC_G,     KC_M,    KC_N,   KC_E,    KC_I,   KC_O,     KC_QUOT,
+                KC_CAPS, KC_Z,  ALTX,    CTLC,    SFTD,   KC_V,     KC_K,    SFTH,   CTLCOMM, ALTDOT, GUISLSH,  OSMCS,
+
+                                         GUIESC, LAYER1,  KC_TAB,   SC_SENT, LAYER2, ALTDEL
+        ),
+        [_SYMBOLS] = LAYOUT_split_3x6_3(
+                KC_TILD, KC_EXLM, KC_4,  KC_5,    KC_6,    KC_MINS,     KC_GRV,  KC_LPRN, KC_RPRN, KC_ASTR, KC_LT,   KC_GT,
+                KC_DLR,  KC_QUOT, KC_1,  KC_2,    KC_3,    KC_UNDS,     KC_EQL,  KC_LBRC, KC_RBRC, KC_PLUS, KC_COLN, KC_AT,
+                KC_CIRC, KC_0,    KC_7,  KC_8,    KC_9,    KC_BSLS,     KC_PIPE, KC_LCBR, KC_RCBR, KC_AMPR, KC_HASH, KC_BSPC,
+
+                                         GUIESC,  KC_TRNS, KC_TRNS,     KC_TRNS, LAYER3,  KC_TRNS
+        ),
+        [_NAV] = LAYOUT_split_3x6_3(
+               KC_NO,    KC_NO,   KC_NO,   KC_HOME, KC_END,  KC_NO,       KC_PSCR, KC_PGUP, KC_PGDN, KC_NO,   KC_NO,   KC_NO,
+               KC_MUTE,  KC_MPRV, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY,     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_NO,   KC_NO,
+               KC_NO,    KC_NO,   KC_NO,   KC_F2,   KC_F1,   KC_NO,       KC_NO,   KC_F8,   KC_F10,  KC_F11,  KC_NO,   KC_NO,
+
+                                           KC_TRNS, LAYER3,  KC_TRNS,     KC_TRNS, KC_TRNS, KC_TRNS
+        ),
+        [_MACROS_AND_COMBOS] = LAYOUT_split_3x6_3(
+               QK_BOOT, KC_NO,   BACKARROW, PHPPOINTER,   ARROWFUNC,    KC_NO,          KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,
+               KC_NO,   KC_NO,   KC_NO,     KC_NO,        WRITEVIM,     EXITVIM,        TAG1,    TAG2,    TAG3,    TAG4,   KC_NO,   KC_NO,
+               KC_NO,   KC_NO,   KC_NO,     KC_NO,        KC_NO,        KC_NO,          KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,
+
+                                            GUIESC,       KC_TRNS,      KC_SPC,         KC_ENT,  KC_TRNS, KC_RALT
+        )
+};
+
+#if defined(ENCODER_ENABLE) && defined(ENCODER_MAP_ENABLE)
+const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
+
+};
+#endif // defined(ENCODER_ENABLE) && defined(ENCODER_MAP_ENABLE)// clang-format on
 
 #ifdef OLED_ENABLE
 
@@ -221,26 +304,6 @@ if (current_wpm > 0) {
     }
 }
 
-layer_state_t layer_state_set_user(layer_state_t state) {
-    switch (get_highest_layer(state)) {
-    case 0:
-        rgb_matrix_reload_from_eeprom();
-        break;
-    case 1:
-        rgb_matrix_mode_noeeprom(RGB_MATRIX_ALPHAS_MODS);
-        rgb_matrix_sethsv_noeeprom(HSV_TEAL);
-        break;
-    case 2:
-        rgb_matrix_mode_noeeprom(RGB_MATRIX_ALPHAS_MODS);
-        rgb_matrix_sethsv_noeeprom(HSV_PURPLE);
-        break;
-    case 5:
-        rgb_matrix_mode_noeeprom(RGB_MATRIX_ALPHAS_MODS);
-        rgb_matrix_sethsv_noeeprom(HSV_YELLOW);
-        break;
-    }
-  return state;
-}
 
 static void print_status_narrow(void) {
 
@@ -252,16 +315,16 @@ static void print_status_narrow(void) {
 
     switch (get_highest_layer(layer_state)) {
         case 0:
-            oled_write("Base ", false);
+            oled_write("Base", false);
             break;
         case 1:
-            oled_write("Game ", false);
+            oled_write("Sym", false);
             break;
         case 2:
-            oled_write("Game2", false);
+            oled_write("Nav", false);
             break;
         case 3:
-            oled_write("Lower", false);
+            oled_write("Macro", false);
             break;
         case 4:
             oled_write("Raise", false);
@@ -300,8 +363,64 @@ bool oled_task_user(void) {
 }
 
 #endif
- bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        // macros
+        case WRITEVIM:
+            if(record->event.pressed){
+                SEND_STRING(SS_TAP(X_ESC));
+                SEND_STRING(SS_LSFT(";"));
+                SEND_STRING("w");
+                SEND_STRING(SS_TAP(X_ENTER));
+            }
+            break;
+        case EXITVIM:
+            if(record->event.pressed){
+                SEND_STRING(SS_TAP(X_ESC));
+                SEND_STRING(SS_LSFT(";"));
+                SEND_STRING("q");
+                SEND_STRING(SS_TAP(X_ENTER));
+            }
+            break;
+        case ARROWFUNC:
+            if(record->event.pressed){
+                SEND_STRING("=");
+                SEND_STRING(">");
+            }
+            break;
+        case PHPPOINTER:
+            if(record->event.pressed){
+                SEND_STRING("-");
+                SEND_STRING(">");
+            }
+            break;
+        case BACKARROW:
+            if(record->event.pressed){
+                SEND_STRING("<");
+                SEND_STRING("-");
+            }
+            break;
+        case TAG1:
+            if(record->event.pressed){
+                SEND_STRING(SS_DOWN(X_LGUI) "1" SS_UP(X_LGUI));
+            }
+            break;
+        case TAG2:
+            if(record->event.pressed){
+                SEND_STRING(SS_DOWN(X_LGUI) "2" SS_UP(X_LGUI));
+            }
+            break;
+        case TAG3:
+            if(record->event.pressed){
+                SEND_STRING(SS_DOWN(X_LGUI) "3" SS_UP(X_LGUI));
+            }
+            break;
+        case TAG4:
+            if(record->event.pressed){
+                SEND_STRING(SS_DOWN(X_LGUI) "4" SS_UP(X_LGUI));
+            }
+            break;
+
         /* KEYBOARD PET STATUS START */
 
         case KC_LCTL:

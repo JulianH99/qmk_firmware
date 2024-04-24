@@ -43,6 +43,7 @@ enum layers {
 #define CTLC LCTL_T(KC_C)
 #define SFTD LSFT_T(KC_D)
 #define GUIESC LGUI_T(KC_ESC)
+#define GUIZ LGUI_T(KC_Z)
 // - right hand
 #define SFTH RSFT_T(KC_H)
 #define CTLCOMM RCTL_T(KC_COMM)
@@ -64,6 +65,7 @@ enum MY_MACROS {
     ARROWFUNC,
     PHPPOINTER,
     BACKARROW,
+    FARROWFUNC,
     // change clients
     TAG1,
     TAG2,
@@ -86,14 +88,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         [_COLEMAK_DEFAULT] = LAYOUT_split_3x6_3(
                 OSMCG,   KC_Q,  KC_W,    KC_F,    KC_P,   KC_B,     KC_J,    KC_L,   KC_U,    KC_Y,   KC_SCLN,  OSMSG,
                 KC_BSPC, KC_A,  KC_R,    KC_S,    KC_T,   KC_G,     KC_M,    KC_N,   KC_E,    KC_I,   KC_O,     KC_QUOT,
-                KC_CAPS, KC_Z,  ALTX,    CTLC,    SFTD,   KC_V,     KC_K,    SFTH,   CTLCOMM, ALTDOT, GUISLSH,  OSMCS,
+                KC_CAPS, GUIZ,  ALTX,    CTLC,    SFTD,   KC_V,     KC_K,    SFTH,   CTLCOMM, ALTDOT, GUISLSH,  OSMCS,
 
                                          GUIESC, LAYER1,  KC_TAB,   SC_SENT, LAYER2, ALTDEL
         ),
         [_SYMBOLS] = LAYOUT_split_3x6_3(
-                KC_TILD, KC_EXLM, KC_4,  KC_5,    KC_6,    KC_MINS,     KC_GRV,  KC_LPRN, KC_RPRN, KC_ASTR, KC_LT,   KC_GT,
-                KC_DLR,  KC_QUOT, KC_1,  KC_2,    KC_3,    KC_UNDS,     KC_EQL,  KC_LBRC, KC_RBRC, KC_PLUS, KC_COLN, KC_AT,
-                KC_CIRC, KC_0,    KC_7,  KC_8,    KC_9,    KC_BSLS,     KC_PIPE, KC_LCBR, KC_RCBR, KC_AMPR, KC_HASH, KC_BSPC,
+                KC_TILD, KC_EXLM, KC_4,  KC_5,    KC_6,    KC_PERC,     KC_GRV,  KC_LPRN, KC_RPRN, KC_ASTR, KC_LT,   KC_GT,
+                KC_AT,   KC_QUOT, KC_1,  KC_2,    KC_3,    KC_PLUS,     KC_MINS, KC_LBRC, KC_RBRC, KC_EQL,  KC_COLN, KC_DLR,
+                KC_CIRC, KC_0,    KC_7,  KC_8,    KC_9,    KC_BSLS,     KC_UNDS, KC_LCBR, KC_RCBR, KC_AMPR, KC_HASH, KC_PIPE,
 
                                          GUIESC,  KC_TRNS, KC_TRNS,     KC_TRNS, LAYER3,  KC_TRNS
         ),
@@ -106,7 +108,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         ),
         [_MACROS_AND_COMBOS] = LAYOUT_split_3x6_3(
                QK_BOOT, KC_NO,   BACKARROW, PHPPOINTER,   ARROWFUNC,    KC_NO,          KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,
-               KC_NO,   KC_NO,   KC_NO,     KC_NO,        WRITEVIM,     EXITVIM,        TAG1,    TAG2,    TAG3,    TAG4,   KC_NO,   KC_NO,
+               KC_NO,   KC_NO,   KC_NO,     FARROWFUNC,   WRITEVIM,     EXITVIM,        TAG1,    TAG2,    TAG3,    TAG4,   KC_NO,   KC_NO,
                KC_NO,   KC_NO,   KC_NO,     KC_NO,        KC_NO,        KC_NO,          KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,
 
                                             GUIESC,       KC_TRNS,      KC_SPC,         KC_ENT,  KC_TRNS, KC_RALT
@@ -398,6 +400,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if(record->event.pressed){
                 SEND_STRING("<");
                 SEND_STRING("-");
+            }
+            break;
+
+        case FARROWFUNC:
+            if(record->event.pressed){
+                SEND_STRING("(");
+                SEND_STRING(")");
+                SEND_STRING(" ");
+                SEND_STRING("=");
+                SEND_STRING(">");
+                SEND_STRING(" ");
+                SEND_STRING("{");
+                SEND_STRING("}");
             }
             break;
         case TAG1:

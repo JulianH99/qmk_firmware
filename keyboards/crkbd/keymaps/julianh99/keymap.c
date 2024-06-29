@@ -60,17 +60,16 @@ enum layers {
 // macros
 
 enum MY_MACROS {
-    WRITEVIM = SAFE_RANGE,
-    EXITVIM,
-    ARROWFUNC,
-    PHPPOINTER,
-    BACKARROW,
-    FARROWFUNC,
     // change clients
-    TAG1,
+    TAG1 = SAFE_RANGE,
     TAG2,
     TAG3,
-    TAG4
+    TAG4,
+    // switch to client
+    STAG1,
+    STAG2,
+    STAG3,
+    STAG4
 };
 // see process_record_user function
 
@@ -93,25 +92,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                          GUIESC, LAYER1,  KC_TAB,   SC_SENT, LAYER2, ALTDEL
         ),
         [_SYMBOLS] = LAYOUT_split_3x6_3(
-                KC_TILD, KC_EXLM, KC_4,  KC_5,    KC_6,    KC_PERC,     KC_GRV,  KC_LPRN, KC_RPRN, KC_ASTR, KC_LT,   KC_GT,
-                KC_AT,   KC_QUOT, KC_1,  KC_2,    KC_3,    KC_PLUS,     KC_MINS, KC_LBRC, KC_RBRC, KC_EQL,  KC_COLN, KC_DLR,
-                KC_CIRC, KC_0,    KC_7,  KC_8,    KC_9,    KC_BSLS,     KC_UNDS, KC_LCBR, KC_RCBR, KC_AMPR, KC_HASH, KC_PIPE,
+                KC_NO, KC_NO,     KC_LT,   KC_GT,   KC_DQT,   KC_PERC,    KC_GRV,  KC_LPRN, KC_RPRN, KC_ASTR, KC_NO,    KC_NO,
+                KC_NO, KC_AT,     KC_EXLM, KC_DLR,  KC_QUOT,  KC_PLUS,    KC_MINS, KC_LBRC, KC_RBRC, KC_EQL,  KC_COLN,  KC_NO,
+                KC_NO, KC_TILD,   KC_CIRC, KC_NO,   KC_PIPE,  KC_BSLS,    KC_UNDS, KC_LCBR, KC_RCBR, KC_AMPR, KC_HASH,  KC_NO,
 
-                                         GUIESC,  KC_TRNS, KC_TRNS,     KC_TRNS, LAYER3,  KC_TRNS
+                                           GUIESC,  KC_TRNS,  KC_TRNS,    KC_TRNS, LAYER3,  KC_TRNS
         ),
         [_NAV] = LAYOUT_split_3x6_3(
-               KC_NO,    KC_NO,   KC_NO,   KC_HOME, KC_END,  KC_NO,       KC_PSCR, KC_PGUP, KC_PGDN, KC_NO,   KC_NO,   KC_NO,
-               KC_MUTE,  KC_MPRV, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY,     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_NO,   KC_NO,
-               KC_NO,    KC_NO,   KC_NO,   KC_F2,   KC_F1,   KC_NO,       KC_NO,   KC_F8,   KC_F10,  KC_F11,  KC_NO,   KC_NO,
+               KC_NO,    KC_NO,   KC_7,  KC_8,    KC_9, KC_PLUS,       KC_PSCR, KC_PGUP, KC_PGDN, KC_NO,   KC_NO,   KC_NO,
+               KC_NO,    KC_SLSH, KC_4,  KC_5,    KC_6, KC_MINS,       KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_NO,   KC_NO,
+               KC_NO,    KC_0,    KC_1,  KC_2,    KC_3, KC_ASTR,       KC_NO,   KC_HOME, KC_END,  KC_NO,  KC_NO,   KC_NO,
 
                                            KC_TRNS, LAYER3,  KC_TRNS,     KC_TRNS, KC_TRNS, KC_TRNS
         ),
         [_MACROS_AND_COMBOS] = LAYOUT_split_3x6_3(
-               QK_BOOT, KC_NO,   BACKARROW, PHPPOINTER,   ARROWFUNC,    KC_NO,          KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,
-               KC_NO,   KC_NO,   KC_NO,     FARROWFUNC,   WRITEVIM,     EXITVIM,        TAG1,    TAG2,    TAG3,    TAG4,   KC_NO,   KC_NO,
-               KC_NO,   KC_NO,   KC_NO,     KC_NO,        KC_NO,        KC_NO,          KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,
+               QK_BOOT,  KC_F1,   KC_F2,     KC_F3,    KC_F4,    KC_F5,      KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
+               KC_MUTE,  KC_MPRV, KC_MNXT,   KC_VOLD,  KC_VOLU,  KC_MPLY,    KC_NO,   TAG1,    TAG2,    TAG3,    TAG4,    KC_NO,
+               KC_NO,    KC_NO,   KC_NO,     KC_NO,    KC_NO,    KC_NO,      KC_NO,   STAG1,   STAG2,   STAG3,   STAG4,   KC_NO,
 
-                                            GUIESC,       KC_TRNS,      KC_SPC,         KC_ENT,  KC_TRNS, KC_RALT
+                                            GUIESC,    KC_TRNS,  KC_SPC,     KC_ENT,  KC_TRNS, KC_RALT
         )
 };
 
@@ -368,56 +367,14 @@ bool oled_task_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         // macros
-        case WRITEVIM:
-            if(record->event.pressed){
-                SEND_STRING(SS_TAP(X_ESC));
-                SEND_STRING(SS_LSFT(";"));
-                SEND_STRING("w");
-                SEND_STRING(SS_TAP(X_ENTER));
-            }
-            break;
-        case EXITVIM:
-            if(record->event.pressed){
-                SEND_STRING(SS_TAP(X_ESC));
-                SEND_STRING(SS_LSFT(";"));
-                SEND_STRING("q");
-                SEND_STRING(SS_TAP(X_ENTER));
-            }
-            break;
-        case ARROWFUNC:
-            if(record->event.pressed){
-                SEND_STRING("=");
-                SEND_STRING(">");
-            }
-            break;
-        case PHPPOINTER:
-            if(record->event.pressed){
-                SEND_STRING("-");
-                SEND_STRING(">");
-            }
-            break;
-        case BACKARROW:
-            if(record->event.pressed){
-                SEND_STRING("<");
-                SEND_STRING("-");
-            }
-            break;
-
-        case FARROWFUNC:
-            if(record->event.pressed){
-                SEND_STRING("(");
-                SEND_STRING(")");
-                SEND_STRING(" ");
-                SEND_STRING("=");
-                SEND_STRING(">");
-                SEND_STRING(" ");
-                SEND_STRING("{");
-                SEND_STRING("}");
-            }
-            break;
         case TAG1:
             if(record->event.pressed){
                 SEND_STRING(SS_DOWN(X_LGUI) "1" SS_UP(X_LGUI));
+            }
+            break;
+        case STAG1:
+            if(record->event.pressed){
+                SEND_STRING(SS_DOWN(X_LGUI) SS_DOWN(X_LSFT) "1" SS_UP(X_LGUI) SS_UP(X_LSFT));
             }
             break;
         case TAG2:
@@ -425,14 +382,29 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING(SS_DOWN(X_LGUI) "2" SS_UP(X_LGUI));
             }
             break;
+        case STAG2:
+            if(record->event.pressed){
+                SEND_STRING(SS_DOWN(X_LGUI) SS_DOWN(X_LSFT) "2" SS_UP(X_LGUI) SS_UP(X_LSFT));
+            }
+            break;
         case TAG3:
             if(record->event.pressed){
                 SEND_STRING(SS_DOWN(X_LGUI) "3" SS_UP(X_LGUI));
             }
             break;
+        case STAG3:
+            if(record->event.pressed){
+                SEND_STRING(SS_DOWN(X_LGUI) SS_DOWN(X_LSFT) "3" SS_UP(X_LGUI) SS_UP(X_LSFT));
+            }
+            break;
         case TAG4:
             if(record->event.pressed){
                 SEND_STRING(SS_DOWN(X_LGUI) "4" SS_UP(X_LGUI));
+            }
+            break;
+        case STAG4:
+            if(record->event.pressed){
+                SEND_STRING(SS_DOWN(X_LGUI) SS_DOWN(X_LSFT) "4" SS_UP(X_LGUI) SS_UP(X_LSFT));
             }
             break;
 
@@ -452,7 +424,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
 
         /* KEYBOARD PET STATUS END */
-}
+    }
 
-return true;
+    return true;
 }
